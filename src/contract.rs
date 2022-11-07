@@ -1,11 +1,10 @@
 #[cfg(not(feature = "library"))]
 use crate::error::ContractError;
-use crate::execute;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
 use crate::query;
-use crate::state;
+use crate::{execute, state};
 use cosmwasm_std::entry_point;
-use cosmwasm_std::{to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
+use cosmwasm_std::{to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response};
 use cw2::set_contract_version;
 
 const CONTRACT_NAME: &str = "crates.io:cw-contract-template";
@@ -20,10 +19,7 @@ pub fn instantiate(
 ) -> Result<Response, ContractError> {
   set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
   state::initialize(deps, &env, &info, &msg)?;
-  Ok(
-    Response::new()
-      .add_attribute("action", "instantiate")
-  )
+  Ok(Response::new().add_attribute("action", "instantiate"))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -34,7 +30,17 @@ pub fn execute(
   msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
   match msg {
-    ExecuteMsg::DoSomething { value } => execute::do_something(deps, env, info, &value),
+    ExecuteMsg::BuyTickets {
+      count,
+      message,
+      is_public,
+    } => execute::buy_tickets(deps, env, info, count, message, is_public.unwrap_or(false)),
+    ExecuteMsg::AddIncentives { rewards } => execute::add_incentives(deps, env, info, &rewards),
+    ExecuteMsg::ClaimRewards {} => execute::claim_rewards(deps, env, info),
+    ExecuteMsg::TerminateRound {} => execute::terminate_round(deps, env, info),
+    ExecuteMsg::IssueRefund { round, recipient } => {
+      execute::issue_refund(deps, env, info, round, &recipient)
+    },
   }
 }
 
@@ -43,9 +49,16 @@ pub fn query(
   deps: Deps,
   _env: Env,
   msg: QueryMsg,
-) -> StdResult<Binary> {
+) -> Result<Binary, ContractError> {
   let result = match msg {
-    QueryMsg::GetSomething {} => to_binary(&query::get_something(deps)?),
+    QueryMsg::GetRound {
+      index,
+      players,
+      winners,
+      orders,
+    } => to_binary(&query::get_round::get_round(
+      deps, index, players, winners, orders,
+    )?),
   }?;
   Ok(result)
 }

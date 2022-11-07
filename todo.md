@@ -1,0 +1,4 @@
+- [] Implement execute::terminate_round
+- [] Implement execute::claim_rewards
+- [] Implement Lottery::refund_tickets(storage, round)?
+- [] Implement Lottery::refund_incentives(storage, round)?

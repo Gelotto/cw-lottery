@@ -1,5 +1,5 @@
 [package]
-name = "cw_contract_template"
+name = "cw_gelotto_lottery"
 version = "0.14.0"
 authors = []
 edition = "2018"
@@ -36,6 +36,8 @@ cosmwasm-std = { version = "1.1.0" }
 schemars = "0.8.1"
 serde = { version = "1.0.103", default-features = false, features = ["derive"] }
 thiserror = { version = "1.0.23" }
+sha2 = "0.10.6"
+base64ct = "1.5.3"
 
 [dev-dependencies]
 cosmwasm-schema = { version = "1.1.0" }
